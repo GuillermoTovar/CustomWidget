@@ -31,9 +31,10 @@ class WebSocketHandler {
                 
 		if (data.body.direction === "Inbound") {
 		    console.log("Displaying inbound message:", data.body.text);
+		    this.onReceivedMessage(data.body.text); // Display as received-message
 		} else if (data.body.direction === "Outbound") {
 		    console.log("Displaying outbound message:", data.body.text);
-		    this.onSentMessage(data.body.text);
+		    this.onSentMessage(data.body.text); // Display as sent-message
 		}
             }
         };
