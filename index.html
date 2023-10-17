@@ -57,7 +57,8 @@
             const config = await getConfig();
             const GCDomain = config.GCDomain;
             const GCMessagingDeplId = config.GCMessagingDeplId;
-
+            const directToWM = config.directToWM;
+        
             // Load Genesys Cloud SDK
             (function (g, e, n, es, ys) {
                 g['_genesysJs'] = e; g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
@@ -67,12 +68,17 @@
                 deploymentId: GCMessagingDeplId,
                 debug: true
             });
-
+        
             // Custom Launcher Logic and Event Subscriptions
             const customLauncher = document.getElementById('custom-launcher');
             let bMessengerOpened = false;
-
-            Genesys('subscribe', 'Messenger.ready', (e) => (customLauncher.style.display = 'block'));
+        
+            Genesys('subscribe', 'Messenger.ready', (e) => {
+                customLauncher.style.display = 'block';
+                if (directToWM === "true") {
+                    openMessenger();
+                }
+            });
             Genesys('subscribe', 'Messenger.opened', (e) => {
                 bMessengerOpened = true;
                 customLauncher.style.display = 'none';
@@ -81,14 +87,14 @@
                 bMessengerOpened = false;
                 customLauncher.style.display = 'block';
             });
-
+        
             const openMessenger = () => {
                 Genesys('command', 'Messenger.open');
             };
             const closeMessenger = () => {
                 Genesys('command', 'Messenger.close');
             };
-
+        
             window.toggleMessenger = () => {
                 bMessengerOpened ? closeMessenger() : openMessenger();
             };
