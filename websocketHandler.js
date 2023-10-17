@@ -18,16 +18,14 @@ class WebSocketHandler {
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received message:", data); // Debug log
-
-            if (data.body && data.body.text && data.body.direction) {
+        
+            if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
                 if (data.body.direction === "Outbound" && data.body.id === this.lastSentMessageId) {
-                    // This is a confirmation of a message we just sent, so ignore it
                     return;
                 }
                 this.messageCallback(data.body.text);
             }
         };
-
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
             // TODO: Handle errors, maybe retry connecting after some time
