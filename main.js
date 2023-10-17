@@ -22,12 +22,13 @@ function displaySentMessage(message) {
 }
 
 function displayReceivedMessage(message) {
+    console.log("Displaying received message:", message);
     const chatWindow = document.getElementById('chat-window');
     const messageElement = document.createElement('div');
     messageElement.classList.add('received-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
 }
 
 function initializeWebSocket(endpoint, deploymentId) {
@@ -36,6 +37,7 @@ function initializeWebSocket(endpoint, deploymentId) {
 }
 
 document.addEventListener('configLoaded', (e) => {
+    console.log("Initializing WebSocket due to 'configLoaded' event");
     const { GCWSSEndpoint, GCMessagingDeplId } = e.detail;
     initializeWebSocket(GCWSSEndpoint, GCMessagingDeplId);
 });
