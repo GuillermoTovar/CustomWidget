@@ -1,110 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genesys Cloud WB custom launcher demo</title>
-    <style>
-        /* Some basic styles for the page layout */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #custom-launcher {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-    </style>
+    <title>Genesys Cloud Chat</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <h1>Genesys Cloud messenger custom widget demo</h1>
 
-    <!-- Custom Launcher Button -->
-    <button type="button" id="custom-launcher" style="display: none;" onclick="toggleMessenger()">M</button>
+<div id="chat-container">
+    <div id="chat-window">
+        <!-- Chat messages will be displayed here -->
+    </div>
+    <div id="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type a message...">
+        <button id="send-button">Send</button>
+    </div>
+</div>
 
-    <!-- Genesys Cloud Integration -->
-    <script type="text/javascript" charset="utf-8">
-
-        async function getConfig() {
-            try {
-                const response = await fetch('/api/getConfig');
-                if (!response.ok) {
-                    throw new Error('Environment vars could not be retrieved');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error(error);
+<script src="websocketHandler.js"></script>
+<script src="main.js"></script>
+<script type="text/javascript" charset="utf-8">
+    async function getConfig() {
+        try {
+            const response = await fetch('/api/getConfig');
+            if (!response.ok) {
+                throw new Error('Environment vars could not be retrieved');
             }
+            return await response.json();
+        } catch (error) {
+            console.error(error);
         }
+    }
 
-        async function initialize() {
-            const config = await getConfig();
-            const GCDomain = config.GCDomain;
-            const GCEnvironment = config.GCEnvironment;       
-            const GCMessagingDeplId = config.GCMessagingDeplId;
-            const GCWSSEndpoint = config.GCWSSEndpoint;  
-            const directToWM = config.directToWM;
-        
-            // Load Genesys Cloud SDK
-            (function (g, e, n, es, ys) {
-                g['_genesysJs'] = e; g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
-                g[e].t = 1 * new Date(); g[e].c = es; ys = document.createElement('script'); ys.async = 1;
-                ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
-            })(window, 'Genesys', `https://${GCDomain}/genesys-bootstrap/genesys.min.js`, {
-                environment: `${GCEnvironment}`,
-                deploymentId: `${GCMessagingDeplId}`,
-                debug: true
-            });
-        
-            // Custom Launcher Logic and Event Subscriptions
-            const customLauncher = document.getElementById('custom-launcher');
-            let bMessengerOpened = false;
-        
-            Genesys('subscribe', 'Messenger.ready', (e) => {
-                customLauncher.style.display = 'block';
-                if (directToWM === "true") {
-                    openMessenger();
-                }
-            });
-            Genesys('subscribe', 'Messenger.opened', (e) => {
-                bMessengerOpened = true;
-                customLauncher.style.display = 'none';
-            });
-            Genesys('subscribe', 'Messenger.closed', (e) => {
-                bMessengerOpened = false;
-                customLauncher.style.display = 'block';
-            });
-        
-            const openMessenger = () => {
-                Genesys('command', 'Messenger.open');
-            };
-            const closeMessenger = () => {
-                Genesys('command', 'Messenger.close');
-            };
-        
-            window.toggleMessenger = () => {
-                bMessengerOpened ? closeMessenger() : openMessenger();
-            };
-        }
-
-        initialize();
-    </script>
+    async function initialize() {
+        const config = await getConfig();
+        const event = new CustomEvent('configLoaded', { detail: config });
+        document.dispatchEvent(event);
+    }
+    initialize();
+</script>
 </body>
-
 </html>
