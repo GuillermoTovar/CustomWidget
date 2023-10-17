@@ -4,8 +4,8 @@ class WebSocketHandler {
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
-        this.onReceivedMessage = onReceivedMessage; // Store the callback for received messages
-        this.onSentMessage = onSentMessage; // Store the callback for sent messages
+        this.onReceivedMessage = onReceivedMessage; // Callback for received messages
+        this.onSentMessage = onSentMessage; // Callback for sent messages
         this.processedMessageIds = new Set(); // Store processed message IDs
     }
 
@@ -18,7 +18,7 @@ class WebSocketHandler {
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received full message:", data);
+            console.log("Received full message:", data); // Debug log
 
             if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
                 if (this.processedMessageIds.has(data.body.id)) {
@@ -30,8 +30,10 @@ class WebSocketHandler {
                 this.processedMessageIds.add(data.body.id);
                 
                 if (data.body.direction === "Inbound") {
+                    console.log("Displaying inbound message:", data.body.text);
                     this.onReceivedMessage(data.body.text);
                 } else if (data.body.direction === "Outbound") {
+                    console.log("Displaying outbound message:", data.body.text);
                     this.onSentMessage(data.body.text);
                 }
             }
@@ -39,6 +41,7 @@ class WebSocketHandler {
 
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
+            // TODO: Handle errors, maybe retry connecting after some time
         };
 
         this.socket.onclose = (event) => {
@@ -72,6 +75,7 @@ class WebSocketHandler {
     }
 
     _generateUUID() {
+        // Simple function to generate a UUID
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
