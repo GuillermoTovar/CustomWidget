@@ -1,6 +1,6 @@
 class WebSocketHandler {
-    constructor(deploymentId) {
-        this.endpoint = process.env.GCWSSEndpoint || 'wss://webmessaging.mypurecloud.com/v1';
+    constructor(endpoint, deploymentId) {
+        this.endpoint = endpoint;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
