@@ -1,10 +1,11 @@
 class WebSocketHandler {
-    constructor(endpoint, deploymentId, messageCallback) {
+    constructor(endpoint, deploymentId, onReceivedMessage, onSentMessage) {
         this.endpoint = `wss://${endpoint}`;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
-        this.messageCallback = messageCallback; // Store the callback
+        this.onReceivedMessage = onReceivedMessage; // Store the callback for received messages
+        this.onSentMessage = onSentMessage; // Store the callback for sent messages
         this.processedMessageIds = new Set(); // Store processed message IDs
     }
 
@@ -18,27 +19,26 @@ class WebSocketHandler {
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received full message:", data);
-        
+
             if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
                 if (this.processedMessageIds.has(data.body.id)) {
                     console.log("Ignoring already processed message with ID:", data.body.id);
                     return;
                 }
-        
+
                 console.log("Processing message with ID:", data.body.id);
-                this.processedMessageIds.add(data.body.id); // Mark this message ID as processed
+                this.processedMessageIds.add(data.body.id);
                 
                 if (data.body.direction === "Inbound") {
-                    displayReceivedMessage(data.body.text);
+                    this.onReceivedMessage(data.body.text);
                 } else if (data.body.direction === "Outbound") {
-                    displaySentMessage(data.body.text);
+                    this.onSentMessage(data.body.text);
                 }
             }
         };
 
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
-            // TODO: Handle errors, maybe retry connecting after some time
         };
 
         this.socket.onclose = (event) => {
@@ -72,14 +72,13 @@ class WebSocketHandler {
     }
 
     _generateUUID() {
-        // Simple function to generate a UUID
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
-
+	
     // To retrieve message history, build getJWT accordingly (https://developer.genesys.cloud/commdigital/digital/webmessaging/websocketapi#retrieve-message-history) and uncomment below:
     /*
     async getJWT() {
@@ -107,7 +106,7 @@ class WebSocketHandler {
         }
         return await response.json();
     }
-    */
+    */	
 }
 
 export default WebSocketHandler;
