@@ -19,9 +19,10 @@ class WebSocketHandler {
             const data = JSON.parse(event.data);
             console.log("Received message:", data); // Debug log
 
-            if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
+            if (data.body && data.body.text && data.body.direction === "Inbound" && data.body.type === "Text") {
                 if (this.processedMessageIds.has(data.body.id)) {
                     // Message with this ID has already been processed, so ignore it
+                    console.log(`Ignoring duplicate message with ID: ${data.body.id}`); // Debug log
                     return;
                 }
 
