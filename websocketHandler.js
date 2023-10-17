@@ -17,15 +17,15 @@ class WebSocketHandler {
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received message:", data); // Debug log
+            console.log("Received full message:", data);
 
-            if (data.body && data.body.text && data.body.direction === "Inbound" && data.body.type === "Text") {
+            if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
                 if (this.processedMessageIds.has(data.body.id)) {
-                    // Message with this ID has already been processed, so ignore it
-                    console.log(`Ignoring duplicate message with ID: ${data.body.id}`); // Debug log
+                    console.log("Ignoring already processed message with ID:", data.body.id);
                     return;
                 }
 
+                console.log("Processing message with ID:", data.body.id);
                 this.processedMessageIds.add(data.body.id); // Mark this message ID as processed
                 this.messageCallback(data.body.text);
             }
