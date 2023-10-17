@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesys Cloud messenger custom widget demo</title>
+    <style>
+        /* Some basic styles for the page layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #custom-launcher {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Genesys Cloud messenger custom widget demo</h1>
+
+    <!-- Custom Launcher Button -->
+    <button type="button" id="custom-launcher" style="display: none;" onclick="toggleMessenger()">M</button>
+
+    <!-- Genesys Cloud Integration -->
+    <script type="text/javascript" charset="utf-8">
+        // Load Genesys Cloud SDK
+        (function (g, e, n, es, ys) {
+            g['_genesysJs'] = e; g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
+            g[e].t = 1 * new Date(); g[e].c = es; ys = document.createElement('script'); ys.async = 1;
+            ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
+        })(window, 'Genesys', 'https://apps.mypurecloud.ie/genesys-bootstrap/genesys.min.js', {
+            deploymentId: '62adf5e8-8c44-4a33-afa2-a60403e52663',
+            debug: true
+        });
+
+        // Custom Launcher Logic and Event Subscriptions
+        const customLauncher = document.getElementById('custom-launcher'); 
+        let bMessengerOpened = false;
+
+        Genesys('subscribe', 'Messenger.ready', (e) => (customLauncher.style.display = 'block'));
+        Genesys('subscribe', 'Messenger.opened', (e) => {
+            bMessengerOpened = true;
+            customLauncher.style.display = 'none';
+        });
+        Genesys('subscribe', 'Messenger.closed', (e) => {
+            bMessengerOpened = false;
+            customLauncher.style.display = 'block';
+        });
+
+        const openMessenger = () => {
+            Genesys('command', 'Messenger.open');
+        };
+        const closeMessenger = () => {
+            Genesys('command', 'Messenger.close');
+        };
+
+        const toggleMessenger = () => {
+            bMessengerOpened ? closeMessenger() : openMessenger();
+        };
+    </script>
+</body>
+</html>
