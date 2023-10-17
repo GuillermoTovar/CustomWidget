@@ -1,4 +1,5 @@
-Genesys Cloud Custom Web Messaging Widget
+Genesys Cloud Custom Web Messaging Widget.
+
 This project provides a simple integration with Genesys Cloud's Web messaging Guest API to facilitate web messaging through a custom interface.
 
 Features:
