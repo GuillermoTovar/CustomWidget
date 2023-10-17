@@ -3,7 +3,7 @@ class WebSocketHandler {
         this.endpoint = endpoint;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
-        this.lastSentMessageId = null; // Add this property
+        this.lastSentMessageId = null;
         this.socket = null;
         this.messageCallback = messageCallback; // Store the callback
     }
