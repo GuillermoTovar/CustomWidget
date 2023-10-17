@@ -1,6 +1,6 @@
 class WebSocketHandler {
     constructor(endpoint, deploymentId) {
-        this.endpoint = endpoint;
+        this.endpoint = endpoint.startsWith('wss://') ? endpoint : `wss://${endpoint}`;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
