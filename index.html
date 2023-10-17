@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +17,7 @@
             align-items: center;
             justify-content: center;
         }
+
         #custom-launcher {
             position: absolute;
             bottom: 20px;
@@ -29,6 +31,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Genesys Cloud messenger custom widget demo</h1>
 
@@ -38,56 +41,61 @@
     <!-- Genesys Cloud Integration -->
     <script type="text/javascript" charset="utf-8">
 
-        function getConfig() {
-            return fetch('/api/getConfig')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Environment vars could not be retrieved');
-                    }
-                    return response.json();
-                });
+        async function getConfig() {
+            try {
+                const response = await fetch('/api/getConfig');
+                if (!response.ok) {
+                    throw new Error('Environment vars could not be retrieved');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+            }
         }
-        
-        function setWindowConfig(config) {
-            Object.keys(config).forEach(key => {
-                window[key] = config[key];
+
+        async function initialize() {
+            const config = await getConfig();
+            const GCDomain = config.GCDomain;
+            const GCMessagingDeplId = config.GCMessagingDeplId;
+
+            // Load Genesys Cloud SDK
+            (function (g, e, n, es, ys) {
+                g['_genesysJs'] = e; g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
+                g[e].t = 1 * new Date(); g[e].c = es; ys = document.createElement('script'); ys.async = 1;
+                ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
+            })(window, 'Genesys', `https://${GCDomain}/genesys-bootstrap/genesys.min.js`, {
+                deploymentId: GCMessagingDeplId,
+                debug: true
             });
+
+            // Custom Launcher Logic and Event Subscriptions
+            const customLauncher = document.getElementById('custom-launcher');
+            let bMessengerOpened = false;
+
+            Genesys('subscribe', 'Messenger.ready', (e) => (customLauncher.style.display = 'block'));
+            Genesys('subscribe', 'Messenger.opened', (e) => {
+                bMessengerOpened = true;
+                customLauncher.style.display = 'none';
+            });
+            Genesys('subscribe', 'Messenger.closed', (e) => {
+                bMessengerOpened = false;
+                customLauncher.style.display = 'block';
+            });
+
+            const openMessenger = () => {
+                Genesys('command', 'Messenger.open');
+            };
+            const closeMessenger = () => {
+                Genesys('command', 'Messenger.close');
+            };
+
+            window.toggleMessenger = () => {
+                bMessengerOpened ? closeMessenger() : openMessenger();
+            };
         }
-        
-        // Load Genesys Cloud SDK
-        (function (g, e, n, es, ys) {
-            g['_genesysJs'] = e; g[e] = g[e] || function () { (g[e].q = g[e].q || []).push(arguments) };
-            g[e].t = 1 * new Date(); g[e].c = es; ys = document.createElement('script'); ys.async = 1;
-            ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
-        })(window, 'Genesys', 'https://apps.mypurecloud.ie/genesys-bootstrap/genesys.min.js', {
-            deploymentId: '62adf5e8-8c44-4a33-afa2-a60403e52663',
-            debug: true
-        });
 
-        // Custom Launcher Logic and Event Subscriptions
-        const customLauncher = document.getElementById('custom-launcher'); 
-        let bMessengerOpened = false;
-
-        Genesys('subscribe', 'Messenger.ready', (e) => (customLauncher.style.display = 'block'));
-        Genesys('subscribe', 'Messenger.opened', (e) => {
-            bMessengerOpened = true;
-            customLauncher.style.display = 'none';
-        });
-        Genesys('subscribe', 'Messenger.closed', (e) => {
-            bMessengerOpened = false;
-            customLauncher.style.display = 'block';
-        });
-
-        const openMessenger = () => {
-            Genesys('command', 'Messenger.open');
-        };
-        const closeMessenger = () => {
-            Genesys('command', 'Messenger.close');
-        };
-
-        const toggleMessenger = () => {
-            bMessengerOpened ? closeMessenger() : openMessenger();
-        };
+        initialize();
     </script>
 </body>
+
 </html>
