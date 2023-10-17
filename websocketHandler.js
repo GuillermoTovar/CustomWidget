@@ -65,9 +65,8 @@ class WebSocketHandler {
         });
     }
 
+    // To retrieve message history, build getJWT accordingly (https://developer.genesys.cloud/commdigital/digital/webmessaging/websocketapi#retrieve-message-history) and uncomment below:
     /*
-
-    // To retrieve message history, uncomment below:
 
     async getJWT() {
         const messagePayload = {
@@ -79,7 +78,7 @@ class WebSocketHandler {
     }
 
     async fetchMessageHistory(jwt, domain, pageSize = 10, pageNumber = 1) {
-        const apiUrl = `/api/v2/webmessaging/messages?pageSize=${pageSize}&pageNumber=${pageNumber}`;
+        const apiUrl = `https://${GCAPIEndpoint}/api/v2/webmessaging/messages?pageSize=${pageSize}&pageNumber=${pageNumber}`;
         const headers = new Headers();
         headers.append("Authorization", `Bearer ${jwt}`);
         headers.append("Origin", domain);
