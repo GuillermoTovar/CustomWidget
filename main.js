@@ -7,16 +7,23 @@ document.getElementById('send-button').addEventListener('click', () => {
     const message = chatInput.value.trim();
     if (message) {
         chatWebSocket.sendMessage(message);
-        chatInput.value = '';
+        displaySentMessage(message);
+        chatInput.value = ''; // Clear the input field
     }
 });
 
+document.getElementById('chat-input').addEventListener('keydown', handleInputKeydown);
+
 function handleInputKeydown(event) {
     if (event.key === 'Enter') {
-        event.preventDefault();
-
-        // Trigger the click event on the send button
-        document.getElementById('send-button').click();
+        const chatInput = document.getElementById('chat-input');
+        const message = chatInput.value.trim();
+        if (message) {
+            chatWebSocket.sendMessage(message);
+            displaySentMessage(message);
+            chatInput.value = ''; // Clear the input field
+        }
+        event.preventDefault(); // Prevent the default behavior (new line in the input field)
     }
 }
 
@@ -36,7 +43,7 @@ function displayReceivedMessage(message) {
     messageElement.classList.add('received-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
 function initializeWebSocket(endpoint, deploymentId) {
@@ -49,7 +56,6 @@ document.addEventListener('configLoaded', (e) => {
     const { GCWSSEndpoint, GCMessagingDeplId } = e.detail;
     initializeWebSocket(GCWSSEndpoint, GCMessagingDeplId);
 });
-
 
 // To load message history on start, finish the code regarding this part in websocketHandler.js and uncomment below:
 /*
