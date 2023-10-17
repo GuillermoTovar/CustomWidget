@@ -17,11 +17,16 @@ class WebSocketHandler {
         
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received message:", data); // Debug log
-            if (data.type && data.type === "Text" && data.direction && data.direction === "Inbound") {
-                this.messageCallback(data.text);
+            console.log("Received message:", data);
+            if (data.type && data.type === "Text") {
+                if (data.direction && data.direction === "Inbound") {
+                    this.messageCallback(data.text);
+                } else if (data.direction && data.direction === "Outbound") {
+                    this.messageCallback(data.text); 
+                }
             }
         };
+
 
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
