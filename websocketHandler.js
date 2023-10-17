@@ -29,13 +29,11 @@ class WebSocketHandler {
                 console.log("Processing message with ID:", data.body.id);
                 this.processedMessageIds.add(data.body.id);
                 
-                if (data.body.direction === "Inbound") {
-                    console.log("Displaying inbound message:", data.body.text);
-                    this.onReceivedMessage(data.body.text);
-                } else if (data.body.direction === "Outbound") {
-                    console.log("Displaying outbound message:", data.body.text);
-                    this.onSentMessage(data.body.text);
-                }
+		if (data.body.direction === "Inbound") {
+		    console.log("Displaying inbound message:", data.body.text);
+		} else if (data.body.direction === "Outbound") {
+		    console.log("Displaying outbound message:", data.body.text);
+		}
             }
         };
 
