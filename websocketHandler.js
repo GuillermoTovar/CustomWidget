@@ -14,9 +14,10 @@ class WebSocketHandler {
         this.socket.onopen = (event) => {
             this._configureSession();
         };
-
+        
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log("Received message:", data); // Debug log
             if (data.type && data.type === "Text" && data.direction && data.direction === "Inbound") {
                 this.messageCallback(data.text);
             }
@@ -54,6 +55,7 @@ class WebSocketHandler {
                 text: message
             }
         };
+        console.log("Sending message:", messagePayload); // Debug log
         this.socket.send(JSON.stringify(messagePayload));
     }
 
