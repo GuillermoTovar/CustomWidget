@@ -1,3 +1,4 @@
+import WebSocketHandler from './websocketHandler.js';
 let chatWebSocket;
 
 document.getElementById('send-button').addEventListener('click', () => {
