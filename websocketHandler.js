@@ -1,9 +1,10 @@
 class WebSocketHandler {
-    constructor(endpoint, deploymentId) {
-        this.endpoint = endpoint.startsWith('wss://') ? endpoint : `wss://${endpoint}`;
+    constructor(endpoint, deploymentId, messageCallback) {
+        this.endpoint = endpoint;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
+        this.messageCallback = messageCallback; // Store the callback
     }
 
     connect() {
@@ -15,10 +16,9 @@ class WebSocketHandler {
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            if (data.type === "response" && data.code !== 200) {
-                this._handleError(data);
+            if (data.type && data.type === "Text" && data.direction && data.direction === "Inbound") {
+                this.messageCallback(data.text);
             }
-            // TODO: Handle other incoming messages and update UI
         };
 
         this.socket.onerror = (error) => {
@@ -33,30 +33,6 @@ class WebSocketHandler {
                 console.error('Connection died');
             }
         };
-
-        setInterval(() => {
-            this._sendEcho();
-        }, 60000); // Send echo every 60 seconds
-    }
-
-    _handleError(data) {
-        let errorMessage;
-        switch (data.code) {
-            case 400:
-                errorMessage = "Bad request. Please check the data you're sending.";
-                break;
-            case 403:
-                errorMessage = "Forbidden. Please check feature toggle or configuration.";
-                break;
-            case 404:
-                errorMessage = "Object not found. Please provide valid ID.";
-                break;
-            // ... (handle other error codes similarly)
-            default:
-                errorMessage = data.body; // Default to the error message from the server
-        }
-        const errorEvent = new CustomEvent('errorMessage', { detail: errorMessage });
-        document.dispatchEvent(errorEvent);
     }
 
     _configureSession() {
@@ -80,24 +56,46 @@ class WebSocketHandler {
         this.socket.send(JSON.stringify(messagePayload));
     }
 
-    _sendEcho() {
-        const echoPayload = {
-            action: "echo",
-            message: {
-                type: "Text",
-                text: "ping"
-            }
-        };
-        this.socket.send(JSON.stringify(echoPayload));
-    }
-
     _generateUUID() {
+        // Simple function to generate a UUID
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
+
+    /*
+
+    // To retrieve message history, uncomment below:
+
+    async getJWT() {
+        const messagePayload = {
+            action: "getJwt",
+            token: this.token
+        };
+        const response = await this.sendMessageWithResponse(messagePayload);
+        return response.jwt;
+    }
+
+    async fetchMessageHistory(jwt, domain, pageSize = 10, pageNumber = 1) {
+        const apiUrl = `/api/v2/webmessaging/messages?pageSize=${pageSize}&pageNumber=${pageNumber}`;
+        const headers = new Headers();
+        headers.append("Authorization", `Bearer ${jwt}`);
+        headers.append("Origin", domain);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch message history');
+        }
+        return await response.json();
+    }
+
+    */
 }
 
 export default WebSocketHandler;
