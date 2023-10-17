@@ -7,10 +7,10 @@ document.getElementById('send-button').addEventListener('click', () => {
     const message = chatInput.value.trim();
     if (message) {
         chatWebSocket.sendMessage(message);
-        displaySentMessage(message);
         chatInput.value = '';
     }
 });
+
 
 function displaySentMessage(message) {
     const chatWindow = document.getElementById('chat-window');
