@@ -1,15 +1,15 @@
 class WebSocketHandler {
     constructor(endpoint, deploymentId, messageCallback) {
-        this.endpoint = endpoint;
+        this.endpoint = `wss://${endpoint}`;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
-        this.lastSentMessageId = null;
         this.socket = null;
         this.messageCallback = messageCallback; // Store the callback
+        this.processedMessageIds = new Set(); // Store processed message IDs
     }
 
     connect() {
-        this.socket = new WebSocket(`wss://${this.endpoint}?deploymentId=${this.deploymentId}`);
+        this.socket = new WebSocket(`${this.endpoint}?deploymentId=${this.deploymentId}`);
         
         this.socket.onopen = (event) => {
             this._configureSession();
@@ -18,14 +18,18 @@ class WebSocketHandler {
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received message:", data); // Debug log
-        
+
             if (data.body && data.body.text && data.body.direction && data.body.type === "Text") {
-                if (data.body.direction === "Outbound" && data.body.id === this.lastSentMessageId) {
+                if (this.processedMessageIds.has(data.body.id)) {
+                    // Message with this ID has already been processed, so ignore it
                     return;
                 }
+
+                this.processedMessageIds.add(data.body.id); // Mark this message ID as processed
                 this.messageCallback(data.body.text);
             }
         };
+
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
             // TODO: Handle errors, maybe retry connecting after some time
@@ -55,11 +59,9 @@ class WebSocketHandler {
             token: this.token,
             message: {
                 type: "Text",
-                text: message,
-                id: this._generateUUID() // Generate a UUID for the message
+                text: message
             }
         };
-        this.lastSentMessageId = messagePayload.message.id; // Store the UUID
         this.socket.send(JSON.stringify(messagePayload));
     }
 
