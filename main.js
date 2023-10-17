@@ -62,24 +62,28 @@ document.addEventListener('errorMessage', (e) => {
     displayErrorMessage(e.detail);
 });
 
-async function fetchMessageHistory() {
-    // This is a mock. Replace with actual fetch to your API.
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve([
-                {
-                    id: "750fabf734de0ebbd6a53458cbd7848c",
-                    type: "Text",
-                    text: "Hello, how may I help you?",
-                    direction: "Outbound"
-                },
-                {
-                    id: "871ef990-686a-4ebc-a5b8-17a17cf8dbf8",
-                    type: "Text",
-                    text: "Good morning.",
-                    direction: "Inbound"
-                }
-            ]);
-        }, 1000);
+async getJWT() {
+    const messagePayload = {
+        action: "getJwt",
+        token: this.token
+    };
+    const response = await this.sendMessageWithResponse(messagePayload);
+    return response.jwt;
+}
+
+async fetchMessageHistory(jwt, domain, pageSize = 10, pageNumber = 1) {
+    const apiUrl = `/api/v2/webmessaging/messages?pageSize=${pageSize}&pageNumber=${pageNumber}`;
+    const headers = new Headers();
+    headers.append("Authorization", `Bearer ${jwt}`);
+    headers.append("Origin", domain);
+    
+    const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: headers
     });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch message history');
+    }
+    return await response.json();
 }
