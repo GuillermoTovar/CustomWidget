@@ -1,5 +1,3 @@
-import WebSocketHandler from './websocketHandler.js';
-
 let chatWebSocket;
 
 document.getElementById('send-button').addEventListener('click', () => {
@@ -18,7 +16,7 @@ function displaySentMessage(message) {
     messageElement.classList.add('sent-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
 }
 
 function displayReceivedMessage(message) {
@@ -27,14 +25,16 @@ function displayReceivedMessage(message) {
     messageElement.classList.add('received-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
 }
 
+// Connect to WebSocket when the configuration is loaded
 function initializeWebSocket(endpoint, deploymentId) {
-    chatWebSocket = new WebSocketHandler(endpoint, deploymentId);
+    chatWebSocket = new WebSocketHandler(endpoint, deploymentId, displayReceivedMessage);
     chatWebSocket.connect();
 }
 
+// Listen to the custom event to initialize the WebSocket connection
 document.addEventListener('configLoaded', (e) => {
     const { GCWSSEndpoint, GCMessagingDeplId } = e.detail;
     initializeWebSocket(GCWSSEndpoint, GCMessagingDeplId);
