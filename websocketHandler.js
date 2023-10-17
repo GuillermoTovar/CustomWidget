@@ -9,7 +9,7 @@ class WebSocketHandler {
     }
 
     connect() {
-        this.socket = new WebSocket(`${this.endpoint}?deploymentId=${this.deploymentId}`);
+        this.socket = new WebSocket(`wss://${this.endpoint}?deploymentId=${this.deploymentId}`);
         
         this.socket.onopen = (event) => {
             this._configureSession();
