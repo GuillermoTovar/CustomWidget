@@ -1,4 +1,5 @@
 import WebSocketHandler from './websocketHandler.js';
+
 let chatWebSocket;
 
 document.getElementById('send-button').addEventListener('click', () => {
@@ -7,7 +8,7 @@ document.getElementById('send-button').addEventListener('click', () => {
     if (message) {
         chatWebSocket.sendMessage(message);
         displaySentMessage(message);
-        chatInput.value = ''; // Clear the input field
+        chatInput.value = '';
     }
 });
 
@@ -17,7 +18,7 @@ function displaySentMessage(message) {
     messageElement.classList.add('sent-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
 function displayReceivedMessage(message) {
@@ -26,20 +27,19 @@ function displayReceivedMessage(message) {
     messageElement.classList.add('received-message');
     messageElement.textContent = message;
     chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto scroll to the bottom
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-// Connect to WebSocket when the configuration is loaded
 function initializeWebSocket(endpoint, deploymentId) {
-    chatWebSocket = new WebSocketHandler(endpoint, deploymentId, displayReceivedMessage);
+    chatWebSocket = new WebSocketHandler(endpoint, deploymentId, displayReceivedMessage, displaySentMessage);
     chatWebSocket.connect();
 }
 
-// Listen to the custom event to initialize the WebSocket connection
 document.addEventListener('configLoaded', (e) => {
     const { GCWSSEndpoint, GCMessagingDeplId } = e.detail;
     initializeWebSocket(GCWSSEndpoint, GCMessagingDeplId);
 });
+
 
 // To load message history on start, finish the code regarding this part in websocketHandler.js and uncomment below:
 /*
