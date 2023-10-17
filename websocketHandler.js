@@ -3,25 +3,27 @@ class WebSocketHandler {
         this.endpoint = endpoint;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
+        this.lastSentMessageId = null; // Add this property
         this.socket = null;
         this.messageCallback = messageCallback; // Store the callback
     }
 
     connect() {
-        const fullEndpoint = this.endpoint.startsWith('wss://') ? this.endpoint : `wss://${this.endpoint}`;
-        this.socket = new WebSocket(`${fullEndpoint}?deploymentId=${this.deploymentId}`);
+        this.socket = new WebSocket(`${this.endpoint}?deploymentId=${this.deploymentId}`);
         
         this.socket.onopen = (event) => {
             this._configureSession();
         };
-        
+
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log("Received message:", data); // Debug log
-            
-            // Check if the received data has a body and if it contains a text and direction property
+
             if (data.body && data.body.text && data.body.direction) {
-                // Display both Inbound and Outbound messages
+                if (data.body.direction === "Outbound" && data.body.id === this.lastSentMessageId) {
+                    // This is a confirmation of a message we just sent, so ignore it
+                    return;
+                }
                 this.messageCallback(data.body.text);
             }
         };
@@ -55,10 +57,11 @@ class WebSocketHandler {
             token: this.token,
             message: {
                 type: "Text",
-                text: message
+                text: message,
+                id: this._generateUUID() // Generate a UUID for the message
             }
         };
-        console.log("Sending message:", messagePayload); // Debug log
+        this.lastSentMessageId = messagePayload.message.id; // Store the UUID
         this.socket.send(JSON.stringify(messagePayload));
     }
 
@@ -73,7 +76,6 @@ class WebSocketHandler {
 
     // To retrieve message history, build getJWT accordingly (https://developer.genesys.cloud/commdigital/digital/webmessaging/websocketapi#retrieve-message-history) and uncomment below:
     /*
-
     async getJWT() {
         const messagePayload = {
             action: "getJwt",
@@ -99,7 +101,6 @@ class WebSocketHandler {
         }
         return await response.json();
     }
-
     */
 }
 
