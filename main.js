@@ -11,6 +11,14 @@ document.getElementById('send-button').addEventListener('click', () => {
     }
 });
 
+function handleInputKeydown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+
+        // Trigger the click event on the send button
+        document.getElementById('send-button').click();
+    }
+}
 
 function displaySentMessage(message) {
     const chatWindow = document.getElementById('chat-window');
