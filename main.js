@@ -7,8 +7,7 @@ document.getElementById('send-button').addEventListener('click', () => {
     const message = chatInput.value.trim();
     if (message) {
         chatWebSocket.sendMessage(message);
-        displaySentMessage(message);
-        chatInput.value = ''; // Clear the input field
+        chatInput.value = ''; 
     }
 });
 
@@ -20,10 +19,9 @@ function handleInputKeydown(event) {
         const message = chatInput.value.trim();
         if (message) {
             chatWebSocket.sendMessage(message);
-            displaySentMessage(message);
-            chatInput.value = ''; // Clear the input field
+            chatInput.value = '';
         }
-        event.preventDefault(); // Prevent the default behavior (new line in the input field)
+        event.preventDefault();
     }
 }
 
