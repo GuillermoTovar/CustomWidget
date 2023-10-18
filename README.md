@@ -13,13 +13,13 @@ Before deploying or running the project, ensure you've set up the necessary envi
 GCWSSEndpoint
 GCMessagingDeplId
 (Any other variable you added to /api/getConfig.js)
-Note: The values of these variables should be kept secure, as they contain sensitive information related to your Genesys Cloud account.
 
 Usage:
 
 Open the chat interface.
 Type a message and either press the "Send" button or the "Enter" key to send the message.
-Inbound and outbound messages will be displayed in the chat window.
+That message will be routed to the Web Messaging Deployment set in the environment variables.
+Inbound and outbound (agent responses) messages will be displayed in the chat window.
 Notes:
 This is a basic integration, and further enhancements can be made, such as implementing message history retrieval or handling different types of messages beyond just text.
 Ensure that the environment variables are correctly set up in your hosting platform to avoid any runtime issues.
