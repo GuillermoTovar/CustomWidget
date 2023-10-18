@@ -69,7 +69,7 @@ body, html {
     margin-bottom: 15px;
     padding: 12px;
     border-radius: 25px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);  /* More pronounced shadow */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); 
     opacity: 0;
     animation: fadeInMove 0.5s forwards;
     width: 50%;
