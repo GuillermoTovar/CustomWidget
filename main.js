@@ -47,7 +47,7 @@ function displayReceivedMessage(message) {
 }
 
 function initializeWebSocket(endpoint, deploymentId) {
-    chatWebSocket = new WebSocketHandler(endpoint, deploymentId, displayReceivedMessage);
+    chatWebSocket = new WebSocketHandler(endpoint, deploymentId, displayReceivedMessage, displaySentMessage);
     chatWebSocket.connect();
 }
 
