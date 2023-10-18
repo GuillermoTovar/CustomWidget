@@ -1,10 +1,11 @@
 class WebSocketHandler {
-    constructor(endpoint, deploymentId, onReceivedMessage) {
+    constructor(endpoint, deploymentId, onReceivedMessage, onSentMessage) {
         this.endpoint = `wss://${endpoint}`;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
         this.onReceivedMessage = onReceivedMessage; // Callback for received messages
+        this.onSentMessage = onSentMessage; // Callback for sent messages
         this.processedMessageIds = new Set(); // Store processed message IDs
     }
 
@@ -31,13 +32,15 @@ class WebSocketHandler {
                 if (data.body.direction === "Inbound") {
                     console.log("Displaying inbound message:", data.body.text);
                     this.onReceivedMessage(data.body.text); // Display as received-message
+                } else if (data.body.direction === "Outbound") {
+                    console.log("Displaying outbound message:", data.body.text);
+                    this.onSentMessage(data.body.text); // Display as sent-message
                 }
             }
         };
 
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
-            // TODO: Handle errors, maybe retry connecting after some time
         };
 
         this.socket.onclose = (event) => {
@@ -71,7 +74,6 @@ class WebSocketHandler {
     }
 
     _generateUUID() {
-        // Simple function to generate a UUID
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
