@@ -1,11 +1,10 @@
 class WebSocketHandler {
-    constructor(endpoint, deploymentId, onReceivedMessage, onSentMessage) {
+    constructor(endpoint, deploymentId, onReceivedMessage) {
         this.endpoint = `wss://${endpoint}`;
         this.deploymentId = deploymentId;
         this.token = this._generateUUID();
         this.socket = null;
         this.onReceivedMessage = onReceivedMessage; // Callback for received messages
-        this.onSentMessage = onSentMessage; // Callback for sent messages
         this.processedMessageIds = new Set(); // Store processed message IDs
     }
 
@@ -29,13 +28,10 @@ class WebSocketHandler {
                 console.log("Processing message with ID:", data.body.id);
                 this.processedMessageIds.add(data.body.id);
                 
-		if (data.body.direction === "Inbound") {
-		    console.log("Displaying inbound message:", data.body.text);
-		    this.onReceivedMessage(data.body.text); // Display as received-message
-		} else if (data.body.direction === "Outbound") {
-		    console.log("Displaying outbound message:", data.body.text);
-		    this.onSentMessage(data.body.text); // Display as sent-message
-		}
+                if (data.body.direction === "Inbound") {
+                    console.log("Displaying inbound message:", data.body.text);
+                    this.onReceivedMessage(data.body.text); // Display as received-message
+                }
             }
         };
 
