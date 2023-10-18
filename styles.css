@@ -124,3 +124,15 @@ body, html {
         width: 70%;
     }
 }
+
+#logo-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+}
+
+#gc-logo {
+    height: 50px;
+    width: auto;
+}
